@@ -118,7 +118,7 @@ public class PlayerController : MonoBehaviour
 
         while (_renderer.color.a < 1f)
         {
-            color.a += Time.deltaTime / 0.3f;
+            color.a += Time.deltaTime / 0.5f;
             _renderer.color = color;
 
             yield return null;
