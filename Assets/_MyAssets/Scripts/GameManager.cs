@@ -4,7 +4,9 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    private static GameManager _instance; // 싱글톤을 할당할 전역 변수
+    #region Singleton
+
+    private static GameManager _instance;
 
     public static GameManager Instance
     {
@@ -14,12 +16,6 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
-
-    public bool IsGameOver { get; set; } = false; // 게임 오버 상태
-    public Text scoreText; // 점수를 출력할 UI 텍스트
-    public GameObject gameoverUI; // 게임 오버시 활성화 할 UI 게임 오브젝트
-
-    private int score = 0; // 게임 점수
 
     private static void Init()
     {
@@ -36,7 +32,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Update()
+    #endregion
+    
+    public bool IsGameOver { get; set; } = false;
+    [SerializeField] private Text scoreText;
+    [SerializeField] private GameObject gameOverUI;
+
+    private int score = 0;
+    
+    private void Update()
     {
         if (IsGameOver && Input.GetMouseButtonDown(0))
         {
@@ -58,6 +62,6 @@ public class GameManager : MonoBehaviour
     public void OnPlayerDead()
     {
         IsGameOver = true;
-        gameoverUI.SetActive(true);
+        gameOverUI.SetActive(true);
     }
 }

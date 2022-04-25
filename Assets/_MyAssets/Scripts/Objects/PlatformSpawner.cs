@@ -1,39 +1,38 @@
 ﻿using UnityEngine;
 
-// 발판을 생성하고 주기적으로 재배치하는 스크립트
 public class PlatformSpawner : MonoBehaviour 
 {
-    public GameObject platformPrefab; // 생성할 발판의 원본 프리팹
-    public int count = 3; // 생성할 발판의 개수
+    [SerializeField] private GameObject platformPrefab; 
+    [SerializeField] private int count = 3;
 
-    public float timeBetSpawnMin = 1.5f; // 다음 배치까지의 시간 간격 최솟값
-    public float timeBetSpawnMax = 2.5f; // 다음 배치까지의 시간 간격 최댓값
-    private float timeBetSpawn; // 다음 배치까지의 시간 간격
+    [SerializeField] private float timeBetSpawnMin = 1.5f; 
+    [SerializeField] private float timeBetSpawnMax = 2.5f; 
+    [SerializeField] private float timeBetSpawn; 
 
-    public float yMin = -3.5f; // 배치할 위치의 최소 y값
-    public float yMax = 1.5f; // 배치할 위치의 최대 y값
-    private float xPos = 20f; // 배치할 위치의 x 값
+    [SerializeField] private float yMin = -3.5f; 
+    [SerializeField] private float yMax = 1.5f; 
+    private float _xPos = 20f; 
 
-    private GameObject[] platforms; // 미리 생성한 발판들
-    private Platform[] platformsComponent;
-    private int currentIndex = 0; // 사용할 현재 순번의 발판
+    private GameObject[] _platforms; 
+    private Platform[] _platformsComponent;
+    private int _currentIndex = 0; 
 
-    private readonly Vector2 poolPosition = new Vector2(0, -25); // 초반에 생성된 발판들을 화면 밖에 숨겨둘 위치
-    private float lastSpawnTime; // 마지막 배치 시점
+    private readonly Vector2 poolPosition = new Vector2(0, -25); 
+    private float _lastSpawnTime; 
 
 
     void Start()
     {
-        platforms = new GameObject[count];
-        platformsComponent = new Platform[count];
+        _platforms = new GameObject[count];
+        _platformsComponent = new Platform[count];
 
         for (int i = 0; i < count; i++)
         {
-            platforms[i] = Instantiate(platformPrefab, poolPosition, Quaternion.identity);
-            platformsComponent[i]= platforms[i].GetComponent<Platform>();
+            _platforms[i] = Instantiate(platformPrefab, poolPosition, Quaternion.identity);
+            _platformsComponent[i]= _platforms[i].GetComponent<Platform>();
         }
 
-        lastSpawnTime = 0f;
+        _lastSpawnTime = 0f;
         timeBetSpawn = 0f;
     }
 
@@ -44,22 +43,22 @@ public class PlatformSpawner : MonoBehaviour
             return;
         }
 
-        if (Time.time >= lastSpawnTime + timeBetSpawn)
+        if (Time.time >= _lastSpawnTime + timeBetSpawn)
         {
-            lastSpawnTime = Time.time;
+            _lastSpawnTime = Time.time;
 
             timeBetSpawn = Random.Range(timeBetSpawnMin, timeBetSpawnMax);
             float yPos = Random.Range(yMin, yMax);
 
-            platformsComponent[currentIndex].enabled = false;
-            platformsComponent[currentIndex].enabled = true;
+            _platformsComponent[_currentIndex].enabled = false;
+            _platformsComponent[_currentIndex].enabled = true;
 
-            platforms[currentIndex].transform.position = new Vector2(xPos, yPos);
-            currentIndex++;
+            _platforms[_currentIndex].transform.position = new Vector2(_xPos, yPos);
+            _currentIndex++;
 
-            if (currentIndex >= count)
+            if (_currentIndex >= count)
             {
-                currentIndex = 0;
+                _currentIndex = 0;
             }
         }
     }

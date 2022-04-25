@@ -1,25 +1,59 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
-// 발판으로서 필요한 동작을 담은 스크립트
 public class Platform : MonoBehaviour
 {
-    public GameObject[] obstacles; // 장애물 오브젝트들
-    private bool stepped = false; // 플레이어 캐릭터가 밟았었는가
+    public GameObject[] obstacles;
+    [SerializeField] private int obstacleRandomSize;
 
-    // 컴포넌트가 활성화될때 마다 매번 실행되는 메서드
+    private ItemsInfo itemsInfo;
+    [SerializeField] private SpriteRenderer[] _itemRenderers;
+
+    private void Awake()
+    {
+        itemsInfo = ItemsInfo.Instance;
+    }
+
     private void OnEnable()
     {
-        stepped = false;
+        SetObstacles();
+        SetItem();
+    }
 
+    private void SetObstacles()
+    {
         for (int i = 0; i < obstacles.Length; i++)
         {
-            if (Random.Range(0, 3) == 0)
+            if (Random.Range(0, obstacleRandomSize) == 0)
             {
                 obstacles[i].SetActive(true);
             }
             else
             {
                 obstacles[i].SetActive(false);
+            }
+        }
+    }
+
+    private void SetItem()
+    {
+        for (int i = 0; i < _itemRenderers.Length; i++)
+        {
+            _itemRenderers[i].enabled = false;
+        }
+        
+        if (Random.Range(0, itemsInfo.PossibilityFactor) != 0)
+        {
+            return;
+        }
+
+        int index = Random.Range(0, itemsInfo.ItemsCount);
+        for (int i = 0; i < _itemRenderers.Length; i++)
+        {
+            if (i == index)
+            {
+                _itemRenderers[i].enabled = true;
             }
         }
     }

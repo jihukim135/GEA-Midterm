@@ -8,37 +8,38 @@ using UnityEngine.Sprites;
 public class PlayerController : MonoBehaviour
 {
     private GameManager _gameManager;
-
-    [SerializeField] private AudioClip deathClip;
-    [SerializeField] private float jumpForce = 1000f;
-
+    private Rigidbody2D _rigidbody;
+    
+    // 점프 관련
+    [SerializeField] private float jumpForce;
     private int _jumpCount = 0;
+    public int MaxJumpCount { get; set; } = 2;
     private bool _isGrounded = false;
-    private bool _isDead = false;
+    private const float GravityScaleFactor = 1.25f;
+    private bool _isGravityScaleChanged = false;
 
-    private const float IncreasedGravityScale = 1.25f;
-    private bool _isGravityScaleIncreased = false;
+    // 오디오 관련
+    private AudioSource _audioSource;
+    [SerializeField] private AudioClip deathClip;
 
-    private Rigidbody2D _playerRigidbody;
+    // 애니메이션 관련
     private Animator _animator;
-    private AudioSource _playerAudio;
     private static readonly int DIe = Animator.StringToHash("Die");
     private static readonly int Grounded = Animator.StringToHash("Grounded");
 
+    // 피격 및 사망 관련
     private const int MaxHeartCount = 3;
     private int _currentHeartCount = MaxHeartCount;
     [SerializeField] private GameObject[] hearts = new GameObject[MaxHeartCount];
-
-    private bool _isInvincible = false;
-    private SpriteRenderer _renderer;
+    private bool _isDead = false;
+    public bool IsInvincible { get; set; } = false;
 
     private void Start()
     {
         _gameManager = GameManager.Instance;
-        _playerRigidbody = GetComponent<Rigidbody2D>();
+        _rigidbody = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
-        _playerAudio = GetComponent<AudioSource>();
-        _renderer = GetComponent<SpriteRenderer>();
+        _audioSource = GetComponent<AudioSource>();
 
         foreach (var heart in hearts)
         {
@@ -55,42 +56,40 @@ public class PlayerController : MonoBehaviour
 
         _animator.SetBool(Grounded, _isGrounded);
 
-        if (Input.GetMouseButtonDown(0) && _jumpCount < 2)
+        CheckInputAndJump();
+        AdjustGravityScale();
+    }
+
+    private void CheckInputAndJump()
+    {
+        if (Input.GetMouseButtonDown(0) && _jumpCount < MaxJumpCount)
         {
             _jumpCount++;
             _gameManager.AddScore(1);
 
-            _playerRigidbody.velocity = Vector2.zero;
-            _playerRigidbody.AddForce(new Vector2(0, jumpForce));
+            _rigidbody.velocity = Vector2.zero;
+            _rigidbody.AddForce(new Vector2(0, jumpForce));
 
-            _playerAudio.Play();
+            _audioSource.Play();
         }
-        else if (Input.GetMouseButtonUp(0) && _playerRigidbody.velocity.y > 0)
+        else if (Input.GetMouseButtonUp(0) && _rigidbody.velocity.y > 0)
         {
-            _playerRigidbody.velocity *= 0.5f;
-        }
-
-        if (!_isGrounded && _playerRigidbody.velocity.y < 0.1f && !_isGravityScaleIncreased)
-        {
-            _playerRigidbody.gravityScale *= IncreasedGravityScale;
-            _isGravityScaleIncreased = true;
+            _rigidbody.velocity *= 0.5f;
         }
     }
 
-    private void Die()
+    private void AdjustGravityScale()
     {
-        _animator.SetTrigger(DIe);
-        _playerAudio.clip = deathClip;
-        _playerAudio.Play();
-
-        _playerRigidbody.velocity = Vector2.zero;
-        _isDead = true;
-        GameManager.Instance.OnPlayerDead();
+        if (!_isGrounded && _rigidbody.velocity.y < 0.1f && !_isGravityScaleChanged)
+        {
+            _rigidbody.gravityScale *= GravityScaleFactor;
+            _isGravityScaleChanged = true;
+        }
     }
-
+    
     private void GetDamage()
     {
-        if (_isInvincible)
+        if (IsInvincible)
         {
             return;
         }
@@ -101,22 +100,41 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        StartCoroutine(GetInvincible(2f));
         hearts[_currentHeartCount - 1].SetActive(false);
         _currentHeartCount--;
+    }
+    
+    private void Die()
+    {
+        _animator.SetTrigger(DIe);
+        _audioSource.clip = deathClip;
+        _audioSource.Play();
+
+        _rigidbody.velocity = Vector2.zero;
+        
+        _isDead = true;
+        _gameManager.OnPlayerDead();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Damage") && !_isDead)
+        if (_isDead)
         {
-            GetDamage();
             return;
         }
 
-        if (other.CompareTag("Dead") && !_isDead)
+        switch (other.tag)
         {
-            Die();
+            case "Damage":
+                GetDamage();
+                break;
+
+            case "Dead":
+                Die();
+                break;
+
+            default:
+                break;
         }
     }
 
@@ -129,30 +147,12 @@ public class PlayerController : MonoBehaviour
 
         _isGrounded = true;
         _jumpCount = 0;
-        _playerRigidbody.gravityScale /= IncreasedGravityScale;
-        _isGravityScaleIncreased = false;
+        _rigidbody.gravityScale /= GravityScaleFactor;
+        _isGravityScaleChanged = false;
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
         _isGrounded = false;
-    }
-
-    private IEnumerator GetInvincible(float duration)
-    {
-        _isInvincible = true;
-
-        Color color = new Color(1f, 1f, 1f, 0f);
-        _renderer.color = color;
-
-        while (_renderer.color.a < 1f)
-        {
-            color.a += Time.deltaTime / duration;
-            _renderer.color = color;
-
-            yield return null;
-        }
-
-        _isInvincible = false;
     }
 }
