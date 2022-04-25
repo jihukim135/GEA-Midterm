@@ -8,9 +8,9 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public abstract class Item : MonoBehaviour
 {
-    private ItemsInfo itemsInfo;
+    private ItemsInfo _itemsInfo;
     protected int index;
-    private SpriteRenderer _itemSprite;
+    private SpriteRenderer _itemRenderer;
     protected GameObject description;
 
     protected bool isActivated = false;
@@ -23,10 +23,10 @@ public abstract class Item : MonoBehaviour
 
     protected virtual void Start()
     {
-        _itemSprite = GetComponent<SpriteRenderer>();
-        itemsInfo = ItemsInfo.Instance;
+        _itemRenderer = GetComponent<SpriteRenderer>();
+        _itemsInfo = ItemsInfo.Instance;
 
-        description = itemsInfo.Descriptions[index];
+        description = _itemsInfo.Descriptions[index];
         description.SetActive(false);
 
         GameObject playerObject = GameObject.FindWithTag("Player");
@@ -36,12 +36,12 @@ public abstract class Item : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D col)
     {
-        if (!_itemSprite.enabled || !col.CompareTag("Player"))
+        if (!_itemRenderer.enabled || !col.CompareTag("Player"))
         {
             return;
         }
 
-        _itemSprite.enabled = false;
+        _itemRenderer.enabled = false;
 
         description.SetActive(true);
         isActivated = true;
