@@ -90,6 +90,11 @@ public class PlayerController : MonoBehaviour
 
     private void GetDamage()
     {
+        if (_isInvincible)
+        {
+            return;
+        }
+
         if (_currentHeartCount <= 0)
         {
             Die();
@@ -138,15 +143,16 @@ public class PlayerController : MonoBehaviour
         _isInvincible = true;
 
         Color color = new Color(1f, 1f, 1f, 0f);
-        // _renderer.color = color;
+        _renderer.color = color;
 
         while (_renderer.color.a < 1f)
         {
             color.a += Time.deltaTime / duration;
-            Debug.Log(color.a);
             _renderer.color = color;
 
             yield return null;
         }
+
+        _isInvincible = false;
     }
 }
