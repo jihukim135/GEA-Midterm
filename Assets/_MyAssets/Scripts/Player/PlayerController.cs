@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     private static readonly int Grounded = Animator.StringToHash("Grounded");
 
     // 피격 및 사망 관련
+    private SpriteRenderer _renderer;
     private const int MaxHeartCount = 3;
     private int _currentHeartCount = MaxHeartCount;
     [SerializeField] private GameObject[] hearts = new GameObject[MaxHeartCount];
@@ -42,6 +43,7 @@ public class PlayerController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _audioSource = GetComponent<AudioSource>();
+        _renderer = GetComponent<SpriteRenderer>();
 
         foreach (var heart in hearts)
         {
@@ -90,24 +92,39 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void GetDamage()
+    private IEnumerator GetDamage()
     {
         if (IsInvincible)
         {
-            return;
+            yield break;
         }
 
         if (_currentHeartCount <= 0)
         {
             Die();
-            return;
+            yield break;
         }
+
+        IsInvincible = true;
 
         _audioSource.clip = hitClip;
         _audioSource.Play();
 
         hearts[_currentHeartCount - 1].SetActive(false);
         _currentHeartCount--;
+
+        Color color = new Color(1f, 1f, 1f, 0f);
+        _renderer.color = color;
+
+        while (_renderer.color.a < 1f)
+        {
+            color.a += Time.deltaTime / 0.3f;
+            _renderer.color = color;
+
+            yield return null;
+        }
+
+        IsInvincible = false;
     }
 
     private void Die()
@@ -131,14 +148,13 @@ public class PlayerController : MonoBehaviour
 
         if (other.CompareTag("Damage"))
         {
-            GetDamage();
+            StartCoroutine(GetDamage());
             return;
         }
 
         if (other.CompareTag("Dead"))
         {
             Die();
-            return;
         }
     }
 
