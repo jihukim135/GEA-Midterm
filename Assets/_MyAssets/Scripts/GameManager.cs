@@ -63,5 +63,10 @@ public class GameManager : MonoBehaviour
     {
         IsGameOver = true;
         gameOverUI.SetActive(true);
+        var itemDescriptions = ItemsInfo.Instance.Descriptions;
+        foreach (var d in itemDescriptions)
+        {
+            d.SetActive(false);
+        }
     }
 }

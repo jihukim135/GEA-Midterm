@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
 {
     private GameManager _gameManager;
     private Rigidbody2D _rigidbody;
-    
+
     // 점프 관련
     [SerializeField] private float jumpForce;
     private int _jumpCount = 0;
@@ -20,7 +20,9 @@ public class PlayerController : MonoBehaviour
 
     // 오디오 관련
     private AudioSource _audioSource;
+    [SerializeField] private AudioClip jumpClip;
     [SerializeField] private AudioClip deathClip;
+    [SerializeField] private AudioClip hitClip;
 
     // 애니메이션 관련
     private Animator _animator;
@@ -70,6 +72,7 @@ public class PlayerController : MonoBehaviour
             _rigidbody.velocity = Vector2.zero;
             _rigidbody.AddForce(new Vector2(0, jumpForce));
 
+            _audioSource.clip = jumpClip;
             _audioSource.Play();
         }
         else if (Input.GetMouseButtonUp(0) && _rigidbody.velocity.y > 0)
@@ -86,7 +89,7 @@ public class PlayerController : MonoBehaviour
             _isGravityScaleChanged = true;
         }
     }
-    
+
     private void GetDamage()
     {
         if (IsInvincible)
@@ -100,10 +103,13 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        _audioSource.clip = hitClip;
+        _audioSource.Play();
+
         hearts[_currentHeartCount - 1].SetActive(false);
         _currentHeartCount--;
     }
-    
+
     private void Die()
     {
         _animator.SetTrigger(DIe);
@@ -111,7 +117,7 @@ public class PlayerController : MonoBehaviour
         _audioSource.Play();
 
         _rigidbody.velocity = Vector2.zero;
-        
+
         _isDead = true;
         _gameManager.OnPlayerDead();
     }

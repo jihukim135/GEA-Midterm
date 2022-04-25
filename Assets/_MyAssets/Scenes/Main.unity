@@ -702,7 +702,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpForce: 700
+  jumpClip: {fileID: 8300000, guid: ea6829646ab827844b73eb2b2ada5c13, type: 3}
   deathClip: {fileID: 8300000, guid: 668a107660fa54fe98e03b698a09aa49, type: 3}
+  hitClip: {fileID: 8300000, guid: 9f3611af8f490d241978935857f1f7f1, type: 3}
   hearts:
   - {fileID: 142597716}
   - {fileID: 1900486317}
