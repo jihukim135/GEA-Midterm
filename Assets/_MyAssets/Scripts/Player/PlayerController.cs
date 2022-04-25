@@ -129,18 +129,16 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        switch (other.tag)
+        if (other.CompareTag("Damage"))
         {
-            case "Damage":
-                GetDamage();
-                break;
+            GetDamage();
+            return;
+        }
 
-            case "Dead":
-                Die();
-                break;
-
-            default:
-                break;
+        if (other.CompareTag("Dead"))
+        {
+            Die();
+            return;
         }
     }
 

@@ -33,13 +33,14 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
-    
+
     public bool IsGameOver { get; set; } = false;
     [SerializeField] private Text scoreText;
+    [SerializeField] private Text highScoreText;
     [SerializeField] private GameObject gameOverUI;
 
     private int score = 0;
-    
+
     private void Update()
     {
         if (IsGameOver && Input.GetMouseButtonDown(0))
@@ -63,6 +64,15 @@ public class GameManager : MonoBehaviour
     {
         IsGameOver = true;
         gameOverUI.SetActive(true);
+
+        if (score > PlayerPrefs.GetInt("HighScore", 0))
+        {
+            PlayerPrefs.SetInt("HighScore", score);
+        }
+
+        highScoreText.gameObject.SetActive(true);
+        highScoreText.text = $"HIGH SCORE: {PlayerPrefs.GetInt("HighScore", 0)}";
+        
         var itemDescriptions = ItemsInfo.Instance.Descriptions;
         foreach (var d in itemDescriptions)
         {
