@@ -5,15 +5,13 @@ public class InfiniteJumpItem : Item
 {
     protected override void Start()
     {
-        index = 1;
         base.Start();
         playerColorChanged = new Color(1f, 0f, 1f, 1f);
     }
 
-    protected override IEnumerator Activate()
+    protected override IEnumerator ApplyItemEffect()
     {
-        int originalMax = 2;
-        player.MaxJumpCount = int.MaxValue;
+        player.IsJumpInfinite = true;
 
         Color color = playerColorChanged;
         playerRenderer.color = color;
@@ -26,9 +24,6 @@ public class InfiniteJumpItem : Item
             yield return null;
         }
 
-        player.MaxJumpCount = originalMax;
-        
-        description.SetActive(false);
-        isActivated = false;
+        player.IsJumpInfinite = false;
     }
 }

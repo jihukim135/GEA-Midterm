@@ -6,12 +6,11 @@ public class InvincibleItem : Item
 {
     protected override void Start()
     {
-        index = 0;
         base.Start();
         playerColorChanged = new Color(0f, 1f, 1f, 1f);
     }
 
-    protected override IEnumerator Activate()
+    protected override IEnumerator ApplyItemEffect()
     {
         player.IsInvincible = true;
 
@@ -27,8 +26,5 @@ public class InvincibleItem : Item
         }
 
         player.IsInvincible = false;
-        
-        description.SetActive(false);
-        isActivated = false;
     }
 }

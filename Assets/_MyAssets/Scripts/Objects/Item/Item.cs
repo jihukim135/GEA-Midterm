@@ -9,11 +9,10 @@ using UnityEngine;
 public abstract class Item : MonoBehaviour
 {
     private ItemsInfo _itemsInfo;
-    protected int index;
     private SpriteRenderer _itemRenderer;
-    protected GameObject description;
 
-    protected bool isActivated = false;
+    private int index;
+    protected GameObject description;
     protected float duration = 10f;
 
     protected PlayerController player;
@@ -26,6 +25,7 @@ public abstract class Item : MonoBehaviour
         _itemRenderer = GetComponent<SpriteRenderer>();
         _itemsInfo = ItemsInfo.Instance;
 
+        index = _itemsInfo.GetItemClassIndex(GetType().Name);
         description = _itemsInfo.Descriptions[index];
         description.SetActive(false);
 
@@ -43,11 +43,17 @@ public abstract class Item : MonoBehaviour
 
         _itemRenderer.enabled = false;
 
-        description.SetActive(true);
-        isActivated = true;
-
-        StartCoroutine(Activate());
+        StartCoroutine(ConsumeAndSetDescription());
     }
 
-    protected abstract IEnumerator Activate();
+    private IEnumerator ConsumeAndSetDescription()
+    {
+        description.SetActive(true);
+
+        yield return StartCoroutine(ApplyItemEffect());
+
+        description.SetActive(false);
+    }
+
+    protected abstract IEnumerator ApplyItemEffect();
 }

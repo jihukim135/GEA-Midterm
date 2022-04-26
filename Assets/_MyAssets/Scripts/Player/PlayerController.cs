@@ -13,7 +13,8 @@ public class PlayerController : MonoBehaviour
     // 점프 관련
     [SerializeField] private float jumpForce;
     private int _jumpCount = 0;
-    public int MaxJumpCount { get; set; } = 2;
+    public bool IsJumpInfinite { get; set; } = false;
+    private int MaxJumpCount => IsJumpInfinite ? Int32.MaxValue : 2;
     private bool _isGrounded = false;
     private const float GravityScaleFactor = 1.25f;
     private bool _isGravityScaleChanged = false;
